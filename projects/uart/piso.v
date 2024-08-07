@@ -41,6 +41,7 @@ module piso(
             START_BIT : begin
                 tx =  frame_in[0];
                 tx_active = 1'b1;
+                tx_done = 1'b0;
                 data_count = 4'b0000;
                 next_state = DATA_BITS;
             end
@@ -123,8 +124,14 @@ module piso_tb();
         #100;
         arst_n <= 1'b1;
         send <= 1'b1;
-        for(i = 0;i<15;i=i+1)
+        for(i = 0;i<25;i=i+1)begin
+            if(i == 14)begin
+                data_length <= 1'b0;
+                stop_bits <= 1'b0;
+                parity_type <= 2'b11;
+            end
             #200;
+        end
         $stop;
     end
 endmodule
