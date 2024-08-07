@@ -1,7 +1,7 @@
 module baud_generator #(
     parameter FREQ = 50e6 // 50 MHZ clock
 )(
-    input clk,[1:0]baud_gen,
+    input clk,arst_n,[1:0]baud_gen,
     output reg baud_out    
 );
 
@@ -20,28 +20,29 @@ localparam [15:0] COUNTS_19200 = (FREQ/(2*BAUD_19200));
 reg[15:0] max_counts;
 reg[15:0] counter;
 
-initial begin
-    baud_out = 1'b0;
-    counter = {16{1'b0}};
-end
-
 always @(*)begin
-    max_counts <= COUNTS_2400;
+    max_counts = COUNTS_2400;
     case(baud_gen)
-        2'b00 : max_counts <= COUNTS_2400;
-        2'b01 : max_counts <= COUNTS_4800;
-        2'b10 : max_counts <= COUNTS_9600;
-        2'b11 : max_counts <= COUNTS_19200;
+        2'b00 : max_counts = COUNTS_2400;
+        2'b01 : max_counts = COUNTS_4800;
+        2'b10 : max_counts = COUNTS_9600;
+        2'b11 : max_counts = COUNTS_19200;
     endcase
 end
 
-always @(posedge clk)begin
-    if(counter >= max_counts)begin
-        counter <= {16{1'b0}};
-        baud_out <= ~baud_out;
+always @(posedge clk,negedge arst_n)begin
+    if(!arst_n)begin
+        baud_out = 1'b0;
+        counter = {16{1'b0}};
     end
-    else
-        counter <=  counter + {{15{1'b0}},1'b1};
+    else begin 
+        if(counter >= max_counts)begin
+            counter <= {16{1'b0}};
+            baud_out <= ~baud_out;
+        end
+        else
+            counter <=  counter + {{15{1'b0}},1'b1};    
+    end
 end
 endmodule
 
@@ -49,19 +50,20 @@ endmodule
 module baud_generator_tb();
     integer i;
     reg clk;
+    reg arst_n = 1'b0;
     reg[1:0] baud_gen;
     wire baud_out;
 
-    
-    baud_generator #(.FREQ(50e6)) DUT(.baud_out(baud_out),.clk(clk),.baud_gen(baud_gen));
+    baud_generator #(.FREQ(50e6)) DUT(.baud_out(baud_out),.clk(clk),.arst_n(arst_n),.baud_gen(baud_gen));
 
     always #10 clk = ~clk;  
     initial begin
         clk <= 1'b0;
+        arst_n <= 1'b1;
         baud_gen <= 2'b10;
         for(i = 0;i<20;i = i+1)begin
         #52100; // complete baud_rate
-        $display("$time = %t, clk = %b, baud_gen = %b, baud_out = %b",$time,clk,baud_gen,baud_out);
+        $display("$time = %t, clk = %b,arst_n = %b, baud_gen = %b, baud_out = %b",$time,clk,arst_n,baud_gen,baud_out);
         end
         $stop;
     end
