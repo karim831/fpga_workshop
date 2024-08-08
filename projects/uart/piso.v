@@ -1,5 +1,5 @@
 module piso(
-    input arst_n,send,baud_clk,data_length,stop_bits,parity_in,[1:0]parity_type,[11:0] frame_in,
+    input arst_n,send,baud_clk,data_length,stop_bits,parity_in,[1:0]parity_type,[7:0] data_in,
     output reg tx,parity_out,tx_active,tx_done
 );
     localparam IDLE = 3'b000;
@@ -11,7 +11,7 @@ module piso(
 
 
     reg[2:0] current_state,next_state;
-    reg[3:0] data_count;
+    reg[2:0] data_count;
 
     always @(negedge arst_n,posedge baud_clk)begin
         if(!arst_n)
@@ -22,9 +22,9 @@ module piso(
 
     always @(negedge arst_n,posedge baud_clk)begin
         if(!arst_n)
-            data_count <= 4'b0000;
+            data_count <= 3'b000;
         else
-            data_count <= data_count + 1;
+            data_count <= data_count + 1'b1;
     end
 
     always @(*)begin
@@ -39,15 +39,16 @@ module piso(
                     next_state = START_BIT;
             end
             START_BIT : begin
-                tx =  frame_in[0];
+                tx =  1'b0;
+                parity_out = 1'b0;
                 tx_active = 1'b1;
                 tx_done = 1'b0;
-                data_count = 4'b0000;
+                data_count = 3'b111;
                 next_state = DATA_BITS;
             end
             DATA_BITS : begin
-                tx = frame_in[data_count]; 
-                if(((data_length) && (data_count == 4'b1000)) || ((!data_length) && (data_count == 4'b0111)))begin
+                tx = data_in[data_count]; 
+                if(((data_length) && (data_count == 3'b111)) || ((!data_length) && (data_count == 3'b110)))begin
                     if((^parity_type))
                         next_state = PARITY_BIT;
                     else begin
@@ -58,11 +59,13 @@ module piso(
                 end
             end
             PARITY_BIT : begin 
-                tx = frame_in[9];
+                tx = parity_in;
                 next_state = STOP1_BIT;
             end
             STOP1_BIT : begin 
-                tx = frame_in[10];
+                tx = 1'b1;
+                tx_done = 1'b1;
+                tx_active = 1'b0;
                 if(stop_bits)
                     next_state = STOP2_BIT;
                 else begin
@@ -70,14 +73,9 @@ module piso(
                         next_state = START_BIT;
                     else
                         next_state = IDLE;
-                    tx_done = 1'b1;
-                    tx_active = 1'b0;
                 end
             end
             STOP2_BIT : begin 
-                tx = frame_in[11];
-                tx_done = 1'b1;
-                tx_active = 1'b0;
                 if(send)
                     next_state = START_BIT;
                 else
@@ -99,13 +97,13 @@ module piso_tb();
     integer i;
     reg arst_n,send,baud_clk,data_length,stop_bits,parity_in;
     reg[1:0] parity_type;
-    reg[11:0] frame_in;
+    reg[7:0] data_in;
     wire tx,parity_out,tx_active,tx_done;
 
 
     piso DUT(
         .tx(tx),.parity_out(parity_out),.tx_active(tx_active),.tx_done(tx_done),
-        .frame_in(frame_in),.parity_type(parity_type),
+        .data_in(data_in),.parity_type(parity_type),
         .arst_n(arst_n),.send(send),.baud_clk(baud_clk),
         .data_length(data_length),.stop_bits(stop_bits),
         .parity_in(parity_in)
@@ -120,7 +118,7 @@ module piso_tb();
         stop_bits <= 1'b1;
         parity_in <= 1'b1;
         parity_type <= 2'b10;
-        frame_in <= 12'b11_0_11010101_0;
+        data_in <= 8'b0111_0101;
         #100;
         arst_n <= 1'b1;
         send <= 1'b1;
