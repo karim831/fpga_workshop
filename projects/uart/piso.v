@@ -33,9 +33,9 @@ module piso(
                 tx = 1'b1;
                 parity_out = 1'b0;
                 tx_active = 1'b0;
-                tx_done = 1'b0;
+                tx_done = 1'b1;
                 next_state = IDLE;
-                if(send)
+                if(send) 
                     next_state = START_BIT;
             end
             START_BIT : begin
@@ -68,24 +68,15 @@ module piso(
                 tx_active = 1'b0;
                 if(stop_bits)
                     next_state = STOP2_BIT;
-                else begin
-                    if(send)
-                        next_state = START_BIT;
-                    else
-                        next_state = IDLE;
-                end
-            end
-            STOP2_BIT : begin 
-                if(send)
-                    next_state = START_BIT;
-                else
+                else 
                     next_state = IDLE;
             end
+            STOP2_BIT : next_state = IDLE;
             default : begin
                 tx = 1'b1;
                 parity_out = 1'b0;
                 tx_active = 1'b0;
-                tx_done = 1'b0;
+                tx_done = 1'b1;
                 next_state = IDLE;
             end
         endcase
@@ -123,6 +114,10 @@ module piso_tb();
         arst_n <= 1'b1;
         send <= 1'b1;
         for(i = 0;i<25;i=i+1)begin
+            if(tx_done)
+                send <= 1'b0;
+            if(tx_active)
+                send <= 1'b1;
             if(i == 14)begin
                 data_length <= 1'b0;
                 stop_bits <= 1'b0;
