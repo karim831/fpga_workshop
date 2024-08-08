@@ -33,7 +33,7 @@ endmodule
 
 
 
-`timescale 1ns / 1ns
+`timescale 10ns / 10ns
 module uart_tx_tb();
     integer i;
     reg clk,arst_n,send,stop_bits,data_length;
@@ -49,7 +49,7 @@ module uart_tx_tb();
     );
 
 
-    always #10 clk <= ~clk;
+    always #1 clk <= ~clk;
 
     initial begin
         arst_n <= 1'b0;
@@ -58,12 +58,12 @@ module uart_tx_tb();
         stop_bits <= 1'b1;
         data_length <= 1'b1;
         parity_type <= 2'b10;
-        #52100;
+        #5210;
         send <= 1'b1;
         arst_n <= 1'b1;
         data_in <= $random;
         for(i = 0;i < 24;i = i+1)begin
-            #52100;
+            #5210;
         end
         $stop;
     end
