@@ -61,11 +61,17 @@ module uart_tx_tb();
         #5210;
         send <= 1'b1;
         arst_n <= 1'b1;
-        data_in <= $random;
+        data_in <= 8'b1101_0101;
         for(i = 0;i < 24;i = i+1)begin
             #5210;
         end
+        baud_rate <= 2'b01;
+        stop_bits <= 1'b0;
+        data_length <= 1'b0;
+        parity_type <= 2'b11;
+        data_in <= 8'b1101_0101;
+        for(i = 0;i < 24 ;i = i+1)
+            #10420;
         $stop;
     end
-
 endmodule
