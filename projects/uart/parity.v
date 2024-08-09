@@ -13,23 +13,3 @@ always @(*)begin
     endcase    
 end
 endmodule
-
-module parity_tb();
-    integer i;
-    reg data_length;
-    reg [1:0] parity_type;
-    reg[7:0] data_in;
-    wire parity_out;
-
-    parity DUT(.parity_out(parity_out),.data_in(data_in),.parity_type(parity_type),.data_length(data_length));
-
-    initial begin
-        for(i=0;i<10;i = i+1)begin
-            data_length <= $random;
-            parity_type <= $random;
-            data_in <= $random;
-            #100;
-        end
-        $stop;
-    end
-endmodule

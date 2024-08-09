@@ -46,26 +46,3 @@ always @(posedge clk,negedge arst_n)begin
     end
 end
 endmodule
-
-`timescale 1ns / 1ns
-module baud_generator_tb();
-    integer i;
-    reg clk;
-    reg arst_n = 1'b0;
-    reg[1:0] baud_rate;
-    wire baud_out;
-
-    baud_rateerator #(.FREQ(50e6)) DUT(.baud_out(baud_out),.clk(clk),.arst_n(arst_n),.baud_rate(baud_rate));
-
-    always #10 clk = ~clk;  
-    initial begin
-        clk <= 1'b0;
-        arst_n <= 1'b1;
-        baud_rate <= 2'b10;
-        for(i = 0;i<20;i = i+1)begin
-        #52100; // complete baud_rate
-        $display("$time = %t, clk = %b,arst_n = %b, baud_rate = %b, baud_out = %b",$time,clk,arst_n,baud_rate,baud_out);
-        end
-        $stop;
-    end
-endmodule   
