@@ -1,5 +1,7 @@
 module parity(
-    input data_length,[1:0]parity_type,[7:0]data_in,
+    input data_length,
+	 input [1:0]parity_type,
+	 input [7:0]data_in,
     output reg parity_out
 );
 

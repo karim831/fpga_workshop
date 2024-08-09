@@ -1,5 +1,7 @@
 module piso(
-    input arst_n,send,baud_clk,data_length,stop_bits,parity_in,[1:0]parity_type,[7:0] data_in,
+    input arst_n,send,baud_clk,data_length,stop_bits,parity_in,
+	 input [1:0]parity_type,
+	 input [7:0] data_in,
     output reg tx,parity_out,tx_active,tx_done
 );
     localparam IDLE = 3'b000;
@@ -12,19 +14,19 @@ module piso(
 
     reg[2:0] current_state,next_state;
     reg[2:0] data_count;
-
-    always @(negedge arst_n,posedge baud_clk)begin
-        if(!arst_n)
+	  
+	 always @(negedge arst_n , posedge baud_clk) begin
+        if (!arst_n) begin
             current_state <= IDLE;
-        else
+            data_count <= 3'b000;  
+        end else begin
             current_state <= next_state;
-    end
-
-    always @(negedge arst_n,posedge baud_clk)begin
-        if(!arst_n)
-            data_count <= 3'b000;
-        else
-            data_count <= data_count + 1'b1;
+				
+            if (current_state == START_BIT) 
+                data_count <= 3'b000; 
+				else 
+                data_count <= data_count + 1'b1; 
+        end
     end
 
     always @(*)begin
@@ -43,7 +45,6 @@ module piso(
                 parity_out = 1'b0;
                 tx_active = 1'b1;
                 tx_done = 1'b0;
-                data_count = 3'b111;
                 next_state = DATA_BITS;
             end
             DATA_BITS : begin

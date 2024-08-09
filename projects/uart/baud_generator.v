@@ -1,7 +1,8 @@
 module baud_generator #(
     parameter FREQ = 50e6 // 50 MHZ clock
 )(
-    input clk,arst_n,[1:0]baud_rate,
+    input clk,arst_n,
+	 input [1:0]baud_rate,
     output reg baud_out    
 );
 
