@@ -5,10 +5,11 @@ module data_path(
 	output zero
 );	
 	// pc
+	reg [1:0] pc_counter;
 	wire [31:0] next_inst,current_inst;
 	
 	// reg file 
-	reg reg_clk;
+	reg [1:0] reg_counter;
 	wire [31:0] rd1,rd2;
 	wire [4:0] a3;
 	wire wd;
@@ -32,17 +33,23 @@ module data_path(
 	wire [27:0] jump_shifted; 
 	assign pc_jump = {pc_plus4[31:28],jump_shifted};
 	
+	
+	// for process flow
 	always @(posedge clk,negedge arst_n)begin
-		if(!arst_n)
-			reg_clk <= 1'b0;
-		else
-			reg_clk <= ~reg_clk;
+		if(!arst_n)begin
+			pc_counter <= 2'b10; // start when rst
+			reg_counter <= 2'b00; // delay 2 cycle
+		end
+		else begin
+			pc_counter <= pc_counter + 1'b1;
+			reg_counter <= reg_counter + 1'b1;
+		end
 	end
 	
-	pc pc(.current_inst(current_inst),.clk(clk),.arst_n(arst_n),.next_inst(next_inst));
+	pc program_counter(.current_inst(current_inst),.clk(clk),.arst_n(arst_n),.next_inst(next_inst));
 	
 	reg_file reg_file(
-		.rd1(rd1),.rd2(rd2),.clk(reg_clk),we(reg_write),.a1(instr[25:21]),.a2(instr[20:16]),.a3(a3),.wd(wd)
+		.rd1(rd1),.rd2(rd2),.clk(reg_clk),.we(reg_write),.a1(instr[25:21]),.a2(instr[20:16]),.a3(a3),.wd(wd)
 	);
 	
 	alu alu(.alu_result(alu_out),.zero(zero),.src_a(rd1),.src_b(src_b),.alu_control(alu_control));
@@ -59,9 +66,9 @@ module data_path(
 	
 	sign_extend sign_extend(.out(sign_imm),.in(instr[15:0]));
 	
-	shift_left_twice sll(.out(sign_imm_shifted),.in(sign_imm));
+	shift_left_twice sll_branch(.out(sign_imm_shifted),.in(sign_imm));
 	
-	shift_left_twice #(26,28) jump(.out(jump_shifted),.in(instr[25:0]));
+	shift_left_twice #(26,28) sll_jump(.out(jump_shifted),.in(instr[25:0]));
 	
 	alu adder_branch(.alu_result(pc_branch),.zero(null),.src_a(sign_imm_shifted),.src_b(pc_plus4),.alu_control(3'b000));
 	
