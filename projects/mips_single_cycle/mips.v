@@ -2,10 +2,19 @@ module mips(
 	input clk,arst_n,
 	input[31:0] instr,mem_read_data,
 	output [31:0] current_inst,alu_out,mem_write_data,
-	output mem_write
+	output mem_write,mem_clk
 );
 	wire zero,reg_write,reg_dest,alu_src,mem_to_reg,pc_src,jump;
 	wire [2:0] alu_control;
+	reg [1:0] mem_counter;
+	
+	assign mem_clk = mem_counter[1];
+	always @(posedge clk,negedge arst_n)begin
+		if(!arst_n)
+			mem_counter <= 2'b01;
+		else
+			mem_counter <= mem_counter + 1'b1;
+	end
 	
 	control_unit control_unit(
 		.mem_write(mem_write),
