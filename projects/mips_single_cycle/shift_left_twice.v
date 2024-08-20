@@ -1,6 +1,6 @@
-module shift_left_twice #(parameter N = 32)(
+module shift_left_twice #(parameter N = 32,M = 32)(
 	input [N-1:0] in,
-	output [N-1:0] out
+	output [M-1:0] out
 );
-	assign out = in << 2;
+	assign out = {{(M-N){1'b0}},in} << 2;
 endmodule

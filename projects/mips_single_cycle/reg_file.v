@@ -2,7 +2,7 @@ module reg_file(
 	input clk,we,
 	input [4:0] a1,a2,a3,
 	input [31:0] wd,
-	output rd1,rd2
+	output [31:0] rd1,rd2
 );
 
 	reg [31:0] sram [0:31];
