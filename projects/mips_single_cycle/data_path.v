@@ -2,7 +2,7 @@ module data_path(
 	input clk,arst_n,reg_write,reg_dest,alu_src,mem_to_reg,pcsrc,jump,
 	input [2:0] alu_control,
 	input [25:0] instr,
-	input [31:0] mem_data_read,
+	input [31:0] mem_read_data,
 	output [31:0] current_inst,alu_out,mem_write_data,
 	output zero
 );	
