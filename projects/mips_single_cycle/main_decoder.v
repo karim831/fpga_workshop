@@ -1,7 +1,7 @@
 module main_decoder(
 	input [5:0] op_code,
-	output jump,mem_w,reg_w,reg_dest,alu_src,mem_to_reg,branch,
-	output [1:0] alu_op
+	output reg jump,mem_w,reg_w,reg_dest,alu_src,mem_to_reg,branch,
+	output reg [1:0] alu_op
 );
 	always @(*)begin
 		{jump,alu_op,mem_w,reg_w,reg_dest,alu_src,mem_to_reg,branch} = {9{1'b0}};
