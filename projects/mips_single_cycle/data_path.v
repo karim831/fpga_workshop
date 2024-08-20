@@ -1,18 +1,21 @@
 module data_path(
-	input clk,arst_n,reg_write,reg_dest,alu_src,mem_to_reg,pcsrc,jump,alu_control,
-	input [31:0] instr,mem_data_read,
-	output [31:0] pc,alu_out,mem_write_data,
+	input clk,arst_n,reg_write,reg_dest,alu_src,mem_to_reg,pcsrc,jump,
+	input [2:0] alu_control,
+	input [25:0] instr,
+	input [31:0] mem_data_read,
+	output [31:0] current_inst,alu_out,mem_write_data,
 	output zero
 );	
 	// pc
 	reg [1:0] pc_counter;
-	wire [31:0] next_inst,current_inst;
+	wire [31:0] next_inst;
 	
 	// reg file 
 	reg [1:0] reg_counter;
 	wire [31:0] rd1,rd2;
 	wire [4:0] a3;
 	wire wd;
+	assign mem_write_data = rd2;
 	
 	// alu src_b
 	wire [31:0] src_b;
@@ -46,10 +49,10 @@ module data_path(
 		end
 	end
 	
-	pc program_counter(.current_inst(current_inst),.clk(clk),.arst_n(arst_n),.next_inst(next_inst));
+	pc program_counter(.current_inst(current_inst),.clk(pc_counter[1]),.arst_n(arst_n),.next_inst(next_inst));
 	
 	reg_file reg_file(
-		.rd1(rd1),.rd2(rd2),.clk(reg_clk),.we(reg_write),.a1(instr[25:21]),.a2(instr[20:16]),.a3(a3),.wd(wd)
+		.rd1(rd1),.rd2(rd2),.clk(reg_counter[1]),.we(reg_write),.a1(instr[25:21]),.a2(instr[20:16]),.a3(a3),.wd(wd)
 	);
 	
 	alu alu(.alu_result(alu_out),.zero(zero),.src_a(rd1),.src_b(src_b),.alu_control(alu_control));
@@ -62,7 +65,7 @@ module data_path(
 	
 	mux mux_jumb(.out(next_inst),.in1(branch_out),.in2(pc_jump),.sel(jump));
 	
-	mux mux_result(.out(wd),.in1(alu_result),.in2(mem_read_data),.sel(mem_to_reg));
+	mux mux_result(.out(wd),.in1(alu_out),.in2(mem_read_data),.sel(mem_to_reg));
 	
 	sign_extend sign_extend(.out(sign_imm),.in(instr[15:0]));
 	
