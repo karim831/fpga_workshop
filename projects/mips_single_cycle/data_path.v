@@ -4,7 +4,7 @@ module data_path(
 	input [25:0] instr,
 	input [31:0] mem_read_data,
 	output [31:0] current_inst,alu_out,mem_write_data,
-	output zero
+	output zero_flag
 );	
 	// pc
 	reg [1:0] pc_counter;
@@ -14,14 +14,14 @@ module data_path(
 	reg [1:0] reg_counter;
 	wire [31:0] rd1,rd2;
 	wire [4:0] a3;
-	wire wd;
+	wire [31:0] wd;
 	assign mem_write_data = rd2;
 	
 	// alu src_b
 	wire [31:0] src_b;
 	
 	// sign extend out
-	wire sign_imm;
+	wire [31:0] sign_imm;
 	
 	// mux_responsible_for_branch 
 	wire [31:0] branch_out,pc_plus4,pc_branch;
@@ -55,7 +55,7 @@ module data_path(
 		.rd1(rd1),.rd2(rd2),.clk(reg_counter[1]),.we(reg_write),.a1(instr[25:21]),.a2(instr[20:16]),.a3(a3),.wd(wd)
 	);
 	
-	alu alu(.alu_result(alu_out),.zero(zero),.src_a(rd1),.src_b(src_b),.alu_control(alu_control));
+	alu alu(.alu_result(alu_out),.zero_flag(zero_flag),.src_a(rd1),.src_b(src_b),.alu_control(alu_control));
 	
 	mux mux_alu_src(.out(src_b),.in1(rd2),.in2(sign_imm),.sel(alu_src));
 	
@@ -73,9 +73,9 @@ module data_path(
 	
 	shift_left_twice #(26,28) sll_jump(.out(jump_shifted),.in(instr[25:0]));
 	
-	alu adder_branch(.alu_result(pc_branch),.zero(null),.src_a(sign_imm_shifted),.src_b(pc_plus4),.alu_control(3'b000));
+	alu adder_branch(.alu_result(pc_branch),.zero_flag(null),.src_a(sign_imm_shifted),.src_b(pc_plus4),.alu_control(3'b000));
 	
-	alu adder_counter(.alu_result(pc_plus4),.zero(null),.src_a(current_inst),.src_b(32'd4),.alu_control(3'b000));
+	alu adder_counter(.alu_result(pc_plus4),.zero_flag(null),.src_a(current_inst),.src_b(32'd4),.alu_control(3'b000));
 	
 	
 endmodule

@@ -4,7 +4,7 @@ module mips(
 	output [31:0] current_inst,alu_out,mem_write_data,
 	output mem_write,mem_clk
 );
-	wire zero,reg_write,reg_dest,alu_src,mem_to_reg,pc_src,jump;
+	wire zero_flag,reg_write,reg_dest,alu_src,mem_to_reg,pc_src,jump;
 	wire [2:0] alu_control;
 	reg [1:0] mem_counter;
 	
@@ -17,8 +17,8 @@ module mips(
 	end
 	
 	control_unit control_unit(
-		.mem_write(mem_write),
-		.reg_write(reg_write),
+		.mem_w(mem_write),
+		.reg_w(reg_write),
 		.reg_dest(reg_dest),
 		.alu_src(alu_src),
 		.mem_to_reg(mem_to_reg),
@@ -34,7 +34,7 @@ module mips(
 		.current_inst(current_inst),
 		.alu_out(alu_out),
 		.mem_write_data(mem_write_data),
-		.zero(zero),
+		.zero_flag(zero_flag),
 		.clk(clk),
 		.arst_n(arst_n),
 		.instr(instr[25:0]),
@@ -43,7 +43,7 @@ module mips(
 		.reg_dest(reg_dest),
 		.alu_src(alu_src),
 		.mem_to_reg(mem_to_reg),
-		.pc_src(pc_src),
+		.pcsrc(pc_src),
 		.jump(jump),
 		.alu_control(alu_control)
 	);

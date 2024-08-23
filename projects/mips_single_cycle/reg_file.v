@@ -10,8 +10,10 @@ module reg_file(
 	assign rd1 = sram[a1];
 	assign rd2 = sram[a2];
 	
+	initial sram[0] = 32'd0; // hard wired to ground
+	
 	always @(posedge clk)begin
-		if(we)
+		if(we && a3 != 5'd0)
 			sram[a3] <= wd;
 	end
 endmodule
