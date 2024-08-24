@@ -1,7 +1,7 @@
 module control_unit(
 	input [5:0] op_code,
 	input [5:0] funct,
-	input zero,
+	input zero_flag,
 	output [2:0] alu_control,
 	output jump,mem_w,reg_w,reg_dest,alu_src,mem_to_reg,pc_src
 );
@@ -9,7 +9,7 @@ module control_unit(
 	wire [1:0] alu_op;
 	wire branch;
 	
-	assign pc_src = branch & zero;
+	assign pc_src = branch & zero_flag;
 	main_decoder  main_decoder(
 		.alu_op(alu_op),
 		.jump(jump),

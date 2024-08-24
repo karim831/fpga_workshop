@@ -1,5 +1,5 @@
 module data_path(
-	input clk,arst_n,reg_write,reg_dest,alu_src,mem_to_reg,pcsrc,jump,
+	input clk,arst_n,reg_write,reg_dest,alu_src,mem_to_reg,pc_src,jump,
 	input [2:0] alu_control,
 	input [25:0] instr,
 	input [31:0] mem_read_data,
@@ -73,9 +73,9 @@ module data_path(
 	
 	shift_left_twice #(26,28) sll_jump(.out(jump_shifted),.in(instr[25:0]));
 	
-	alu adder_branch(.alu_result(pc_branch),.zero_flag(null),.src_a(sign_imm_shifted),.src_b(pc_plus4),.alu_control(3'b000));
+	alu adder_branch(.alu_result(pc_branch),.zero_flag(null),.src_a(sign_imm_shifted),.src_b(pc_plus4),.alu_control(3'b010));
 	
-	alu adder_counter(.alu_result(pc_plus4),.zero_flag(null),.src_a(current_inst),.src_b(32'd4),.alu_control(3'b000));
+	alu adder_counter(.alu_result(pc_plus4),.zero_flag(null),.src_a(current_inst),.src_b(32'd4),.alu_control(3'b010));
 	
 	
 endmodule

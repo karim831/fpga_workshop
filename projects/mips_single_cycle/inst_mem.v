@@ -5,7 +5,7 @@ module inst_mem(
 	reg [31:0] rom [0:255];
 	
 	initial begin
-        $readmemh("D:/Studying/programming/fpga_workshop/verilog_codes/projects/mips_single_cycle/instructions.txt",rom);
+        $readmemh("D:/Studying/programming/fpga_workshop/verilog_codes/projects/mips_single_cycle/instructions.mem",rom);
     end
 	
 	assign fetched_inst = rom[current_inst[9:2]];

@@ -27,7 +27,7 @@ module mips(
 		.alu_control(alu_control),
 		.op_code(instr[31:26]),
 		.funct(instr[5:0]),
-		.zero(zero)
+		.zero_flag(zero_flag)
 	);
 	
 	data_path data_path(
@@ -43,7 +43,7 @@ module mips(
 		.reg_dest(reg_dest),
 		.alu_src(alu_src),
 		.mem_to_reg(mem_to_reg),
-		.pcsrc(pc_src),
+		.pc_src(pc_src),
 		.jump(jump),
 		.alu_control(alu_control)
 	);
